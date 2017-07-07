@@ -13,3 +13,10 @@ sub user_by_login {
     $sth->execute ($login);
     return $sth->fetchrow_hashref;
 }
+
+sub card_by_cardname {
+    my $cardname = shift;
+    my $sth = $database->prepare ('SELECT id, name FROM Cards WHERE name = ?');
+    $sth->execute ($cardname);
+    return $sth->fetchrow_hashref;
+}
