@@ -7,6 +7,10 @@ use DBI;
 
 our $database;
 our $FEE;
+our $MAXSIZE;
+our $USERAGENT;
+our $HOST;
+our $CARDS;
 
 sub user_by_login {
     my $login = shift;
@@ -46,4 +50,25 @@ sub purchase {
     }
     $database->{AutoCommit} = $prev;
     return $cardid;
+}
+
+sub download_card {
+    my $cardname = shift;
+    my $useragent = LWP::UserAgent->new (agent => $USERAGENT, max_size => $MAXSIZE);
+    my $request = HTTP::Request->new (GET => $HOST . "/query?q=%21$cardname&v=card&s=cname");
+    my $response = $useragent->request ($request);
+    return 0 unless $response->is_success;
+    return 0 unless ($response->content =~ qr/<img src=\"(?<img>$HOST\/scans\/\w*\/\w*\/(?<cardid>\d*).jpg)\"\s*alt=\"$cardname\"/m);       
+    my $cardid = $+{cardid};
+    my $img = $+{img};
+    my $sth = $database->prepare ('INSERT INTO Cards (id, name) VALUES (?, ?)');
+    $sth->execute ($cardid, $cardname) or return 0; 
+    my $out = File::Spec->catfile ($CARDS, $cardid . '.jpg');
+    make_path (dirname ($out));
+    open my $fh, '>', $out or return 0;
+    close $fh;
+    $request = HTTP::Request->new (GET => $img);
+    $response = $useragent->request ($request, $out);
+    return 0 unless $response->is_success;
+    return $cardid;   
 }
