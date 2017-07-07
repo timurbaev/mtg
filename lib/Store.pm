@@ -20,3 +20,10 @@ sub card_by_cardname {
     $sth->execute ($cardname);
     return $sth->fetchrow_hashref;
 }
+
+sub user_has_card {
+    my ($userid, $cardid) = @_;
+    my $sth = $database->prepare ('SELECT User_id, Card_id FROM Cards_has_Users WHERE User_id = ? AND Card_id = ?');
+    $sth->execute ($userid, $cardid);
+    return defined $sth->fetchrow_hashref;
+}
