@@ -50,3 +50,12 @@ template: "simple"
 #      cookie_name: eshop.session
 #      is_secure: 1
 #      is_http_only: 1
+plugins:
+  Database:
+    driver: 'mysql'
+    database: 'mtg'
+    username: 'mtg'
+    password: 'mtg'
+    on_connect_do:
+      - "SET NAMES 'utf8'"
+      - "SET CHARACTER SET 'utf8'"
