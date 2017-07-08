@@ -3,7 +3,13 @@ package Store;
 use strict;
 use warnings;
 
+use Exporter 'import';
 use DBI;
+use File::Path qw/make_path/;
+use File::Basename qw/dirname/;
+
+use LWP::UserAgent;
+our @EXPORT = qw (buy_card user_by_login user_has_card);
 
 our $database;
 our $FEE;
@@ -85,3 +91,5 @@ sub buy_card {
     return $cardid if (user_has_card ($userid, $cardid));
     purchase ($userid, $cardid);
 }
+
+1;
