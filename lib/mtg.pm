@@ -17,4 +17,9 @@ get '/' => sub {
     template 'index' => {'title' => 'mtg'};
 };
 
+get '/logout' => sub {
+    app->destroy_session;
+    redirect '/login';
+};
+
 true;
