@@ -50,8 +50,30 @@ get '/login' => sub {
     }
 };
 
+post '/login' => sub {
+    my $login = lc params->{login};
+    my $password = params->{password};
+    my $user = user_by_login ($login);
+    if ($user and $password eq $user->{password}) {
+        session 'login' => $login;
+        redirect '/';
+    } else {
+        return '<div>Log in failed, try again</div><meta http-equiv="refresh" content="3;url=/login"/>';
+    }
+};
+
 get '/logout' => sub {
     app->destroy_session;
+    redirect '/login';
+};
+
+get '/img/*' => sub {
+    my ($cardid) = splat;
+    my $login = session 'login';
+    my $user = user_by_login ($login);
+    if ($login and $user) {
+        send_file "$cards/$cardid" if (user_has_card ($user->{id}, $cardid));
+    }
     redirect '/login';
 };
 
