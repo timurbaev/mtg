@@ -14,7 +14,13 @@ $Store::HOST = 'http://magiccards.info';
 $Store::CARDS = "public/$cards";
 
 get '/' => sub {
-    template 'index' => {'title' => 'mtg'};
+    my $login = session 'login';
+    my $user = user_by_login ($login);
+    if ($login and $user) {
+        return template 'index' => {'login' => $login, 'balance' => $user->{balance}};
+    } else {
+        redirect '/login';
+    }
 };
 
 get '/logout' => sub {
