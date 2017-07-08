@@ -41,6 +41,15 @@ post '/' => sub {
     }
 };
 
+get '/login' => sub {
+    my $login = session 'login';
+    if ($login) {
+        redirect '/';
+    } else {
+        template 'login';
+    }
+};
+
 get '/logout' => sub {
     app->destroy_session;
     redirect '/login';
