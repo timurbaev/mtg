@@ -23,6 +23,24 @@ get '/' => sub {
     }
 };
 
+post '/' => sub {
+    my $cardname = params->{cardname};
+    my $login = session 'login';
+    my $user = user_by_login ($login);    
+    if ($login and $user) {
+        my $userid = $user->{id};
+        my $cardid = buy_card ($login, $cardname);
+        if ($cardid) {
+            redirect "/img/$cardid.jpg";
+        } else {
+            return '<div>Something wend wrong!</div><meta http-equiv="refresh" content="3;url=/"/>';
+        }
+    }
+    else {
+        redirect '/login';
+    }
+};
+
 get '/logout' => sub {
     app->destroy_session;
     redirect '/login';
