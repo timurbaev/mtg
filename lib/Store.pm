@@ -72,3 +72,16 @@ sub download_card {
     return 0 unless $response->is_success;
     return $cardid;   
 }
+
+sub buy_card {
+    my ($login, $cardname) = @_;
+    my $user = user_by_login ($login);
+    return unless $user;
+    my $userid = $user->{id};
+    my $balance = $user->{balance};
+    return if ($balance < $FEE);
+    my $card = card_by_cardname ($cardname);
+    my $cardid = $card ? $card->{id} : download_card ($cardname);   
+    return $cardid if (user_has_card ($userid, $cardid));
+    purchase ($userid, $cardid);
+}
