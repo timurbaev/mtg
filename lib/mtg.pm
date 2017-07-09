@@ -1,6 +1,7 @@
 package mtg;
 use Dancer2;
 use Dancer2::Plugin::Database;
+use Dancer2::Plugin::CSRF;
 use Store;
 
 our $VERSION = '0.1';
@@ -13,11 +14,24 @@ $Store::USERAGENT = 'Mozilla/5.0 (Windows; U; Windows NT 5.0; it-IT; rv:1.7.12) 
 $Store::HOST = 'http://magiccards.info';
 $Store::CARDS = "public/$cards";
 
+hook before => sub {
+    if (request->is_post()) {
+        my $csrf_token = param('token');
+        if (!$csrf_token || !validate_csrf_token($csrf_token)) {
+            redirect '/token_error';
+        }
+    }
+};
+
+get '/token_error' => sub {
+    return '<div>CSRF token error</div><meta http-equiv="refresh" content="3;url=/"/>';
+};
+
 get '/' => sub {
     my $login = session 'login';
     my $user = user_by_login ($login);
     if ($login and $user) {
-        return template 'index' => {'login' => $login, 'balance' => $user->{balance}};
+        return template 'index' => {'login' => $login, 'balance' => $user->{balance}, 'token' => get_csrf_token()};
     } else {
         redirect '/login';
     }
@@ -46,7 +60,7 @@ get '/login' => sub {
     if ($login) {
         redirect '/';
     } else {
-        template 'login';
+        template 'login' => {'token' => get_csrf_token()};
     }
 };
 

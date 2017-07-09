@@ -39,6 +39,7 @@
         <form method="post" action="/">
             <input type="text" name="cardname" maxlength = 50 placeholder="Card Name">
             <button type="submit" id ="buy">Buy</button>
-        </form>    
+            <input type="hidden" name="token" value="<%token%>">
+        </form>
     </body>
 </html>
